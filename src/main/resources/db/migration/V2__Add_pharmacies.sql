@@ -1,0 +1,1 @@
+insert into pharmacies (name, city, address, token) values ('Сироп и Пилюля', 'Махачкала', '​Гайдара Гаджиева, 22Б', ${syrup_and_pill});
