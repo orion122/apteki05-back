@@ -1,5 +1,7 @@
 package ru.apteki05.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,21 +10,39 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import ru.apteki05.model.Medicine;
+import ru.apteki05.model.Pharmacy;
+import ru.apteki05.model.input.xml.PriceItems;
+import ru.apteki05.model.input.xml.UnikoXml;
+import ru.apteki05.repository.MedicineRepository;
 import ru.apteki05.repository.PharmacyRepository;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @RestController
 public class XMLController {
 
-    @Value("${XML_DIR}")
+    @Value("${xmlDir}")
     private String XML_DIR;
+
+    private static final XmlMapper MAPPER = new XmlMapper();
 
     @Autowired
     PharmacyRepository pharmacyRepository;
+
+    @Autowired
+    MedicineRepository medicineRepository;
 
     /**
      * Сохраняет xml-файл на диск и данные из него импортирует в БД
@@ -39,18 +59,56 @@ public class XMLController {
 //        String fileName = FilenameUtils.removeExtension(fullFileName);
 //        String fileExtension = FilenameUtils.getExtension(xmlFile.getOriginalFilename());
 
+        log.info("Import file with name {}. Token: {}", fullFileName, token);
 
-        log.info("Import file with name {}", fullFileName);
-        String pharmacyName = pharmacyRepository.findNameByToken(token);
+        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
+        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException("Аптека с таким токеном не найдена"));
 
-        saveFile(inputStream, pharmacyName);
+        Pharmacy pharmacy = optionalPharmacy.get();
 
-        // todo: import data to db
+        // todo: добавить текущую дату в название файла
+        saveFile(inputStream, pharmacy.getName());
+
+        Collection<PriceItems> priceItems = parseXml(new String(xmlFile.getBytes()));
+        importToDB(priceItems, pharmacy);
     }
 
     private void saveFile(InputStream inputStream, String fileName) throws IOException {
 
         File file = new File(XML_DIR + File.separator + fileName + ".xml");
         FileUtils.copyInputStreamToFile(inputStream, file);
+    }
+
+    private Collection<PriceItems> parseXml(String xml) throws JsonProcessingException {
+        UnikoXml unikoXml = MAPPER.readValue(xml, UnikoXml.class);
+
+        return unikoXml.getPrices().getPriceItems().stream()
+                .collect(toMap(
+                        PriceItems::getBarCode,
+                        identity(),
+                        (x, y) -> {
+                            if (x.getPrice().compareTo(y.getPrice()) > 0) {
+                                return x;
+                            } else {
+                                return y;
+                            }
+                        }))
+                .values();
+    }
+
+    private void importToDB(Collection<PriceItems> priceItems, Pharmacy pharmacy) {
+        List<Medicine> medicines = priceItems.stream()
+                .map(x -> {
+                    Medicine medicine = new Medicine();
+                    medicine.setPrice(x.getPrice());
+                    medicine.setName(x.getItemName());
+                    medicine.setCount(Long.valueOf(x.getQuantity()));
+                    medicine.setPharmacy(pharmacy);
+                    medicine.setUpdatedAt(LocalDateTime.now());
+
+                    return medicine;
+                }).collect(toList());
+
+        medicineRepository.saveAll(medicines);
     }
 }
