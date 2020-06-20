@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -63,11 +64,10 @@ public class XMLController {
 
         Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
         optionalPharmacy.orElseThrow(() -> new IllegalArgumentException("Аптека с таким токеном не найдена"));
-
         Pharmacy pharmacy = optionalPharmacy.get();
 
-        // todo: добавить текущую дату в название файла
-        saveFile(inputStream, pharmacy.getName());
+        String fileName = getFileName(pharmacy.getName(), getFormattedDateTime());
+        saveFile(inputStream, fileName);
 
         Collection<PriceItems> priceItems = parseXml(new String(xmlFile.getBytes()));
         importToDB(priceItems, pharmacy);
@@ -75,8 +75,18 @@ public class XMLController {
 
     private void saveFile(InputStream inputStream, String fileName) throws IOException {
 
-        File file = new File(XML_DIR + File.separator + fileName + ".xml");
+        File file = new File(XML_DIR + File.separator + fileName);
         FileUtils.copyInputStreamToFile(inputStream, file);
+    }
+
+    private String getFileName(String pharmacyName, String dateTime) {
+        return pharmacyName + " " + dateTime + ".xml";
+    }
+
+    private String getFormattedDateTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return now.format(formatter);
     }
 
     private Collection<PriceItems> parseXml(String xml) throws JsonProcessingException {
