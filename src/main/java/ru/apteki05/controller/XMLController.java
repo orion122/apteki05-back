@@ -1,6 +1,5 @@
 package ru.apteki05.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -65,28 +64,29 @@ public class XMLController {
         log.info("Import file with name {}. Token: {}", fullFileName, token);
 
         String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER));
-        saveFile(xmlFile.getInputStream(), fileName);
+        File savedFile = saveFile(xmlFile.getInputStream(), fileName);
 
         Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
         optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
         Pharmacy pharmacy = optionalPharmacy.get();
 
-        Collection<PriceItems> priceItems = parseXml(new String(xmlFile.getBytes()));
+        Collection<PriceItems> priceItems = parseXml(savedFile);
         importToDB(priceItems, pharmacy);
     }
 
-    private void saveFile(InputStream inputStream, String fileName) throws IOException {
+    private File saveFile(InputStream inputStream, String fileName) throws IOException {
 
         File file = new File(IMPORTED_FILES + File.separator + fileName);
         FileUtils.copyInputStreamToFile(inputStream, file);
+        return file;
     }
 
     private String getFileName(String token, String dateTime) {
         return (token + "_" + dateTime + ".xml");
     }
 
-    private Collection<PriceItems> parseXml(String xml) throws JsonProcessingException {
-        UnikoXml unikoXml = MAPPER.readValue(xml, UnikoXml.class);
+    private Collection<PriceItems> parseXml(File xmlFile) throws IOException {
+        UnikoXml unikoXml = MAPPER.readValue(xmlFile, UnikoXml.class);
 
         return unikoXml.getPrices().getPriceItems().stream()
                 .collect(toMap(
