@@ -92,13 +92,7 @@ public class XMLController {
                 .collect(toMap(
                         PriceItems::getBarCode,
                         identity(),
-                        (x, y) -> {
-                            if (x.getPrice().compareTo(y.getPrice()) > 0) {
-                                return x;
-                            } else {
-                                return y;
-                            }
-                        }))
+                        this::getMostExpensivePriceItems))
                 .values();
     }
 
@@ -116,5 +110,13 @@ public class XMLController {
                 }).collect(toList());
 
         medicineRepository.saveAll(medicines);
+    }
+
+    private PriceItems getMostExpensivePriceItems(PriceItems x, PriceItems y) {
+        if (x.getPrice().compareTo(y.getPrice()) > 0) {
+            return x;
+        } else {
+            return y;
+        }
     }
 }
