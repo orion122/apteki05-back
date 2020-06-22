@@ -40,11 +40,14 @@ public class XMLController {
     private static final XmlMapper MAPPER = new XmlMapper();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
 
-    @Autowired
-    PharmacyRepository pharmacyRepository;
+    private final PharmacyRepository pharmacyRepository;
+    private final MedicineRepository medicineRepository;
 
     @Autowired
-    MedicineRepository medicineRepository;
+    public XMLController(PharmacyRepository pharmacyRepository, MedicineRepository medicineRepository) {
+        this.pharmacyRepository = pharmacyRepository;
+        this.medicineRepository = medicineRepository;
+    }
 
     /**
      * Сохраняет xml-файл на диск и данные из него импортирует в БД
