@@ -1,6 +1,5 @@
 package ru.apteki05.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.input.xml.PriceItems;
+import ru.apteki05.model.input.xml.PriceItem;
 import ru.apteki05.model.input.xml.UnikoXml;
 import ru.apteki05.repository.MedicineRepository;
 import ru.apteki05.repository.PharmacyRepository;
@@ -21,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -33,16 +33,19 @@ import static java.util.stream.Collectors.toMap;
 @RestController
 public class XMLController {
 
-    @Value("${xmlDir}")
-    private String XML_DIR;
-
+    private String importedFilesDir;
     private static final XmlMapper MAPPER = new XmlMapper();
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
+
+    private final PharmacyRepository pharmacyRepository;
+    private final MedicineRepository medicineRepository;
 
     @Autowired
-    PharmacyRepository pharmacyRepository;
-
-    @Autowired
-    MedicineRepository medicineRepository;
+    public XMLController(@Value("${importedFilesDir}") String importedFilesDir, PharmacyRepository pharmacyRepository, MedicineRepository medicineRepository) {
+        this.importedFilesDir = importedFilesDir;
+        this.pharmacyRepository = pharmacyRepository;
+        this.medicineRepository = medicineRepository;
+    }
 
     /**
      * Сохраняет xml-файл на диск и данные из него импортирует в БД
@@ -53,50 +56,46 @@ public class XMLController {
      */
     @PostMapping("/importXML")
     public void importXML(@RequestParam("file") MultipartFile xmlFile, @RequestParam String token) throws IOException {
-        InputStream inputStream = xmlFile.getInputStream();
-
         String fullFileName = xmlFile.getOriginalFilename();
 //        String fileName = FilenameUtils.removeExtension(fullFileName);
 //        String fileExtension = FilenameUtils.getExtension(xmlFile.getOriginalFilename());
 
         log.info("Import file with name {}. Token: {}", fullFileName, token);
 
-        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
-        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException("Аптека с таким токеном не найдена"));
+        String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER));
+        File savedFile = saveFile(xmlFile.getInputStream(), fileName);
 
+        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
+        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
         Pharmacy pharmacy = optionalPharmacy.get();
 
-        // todo: добавить текущую дату в название файла
-        saveFile(inputStream, pharmacy.getName());
-
-        Collection<PriceItems> priceItems = parseXml(new String(xmlFile.getBytes()));
+        Collection<PriceItem> priceItems = parseXml(savedFile);
         importToDB(priceItems, pharmacy);
     }
 
-    private void saveFile(InputStream inputStream, String fileName) throws IOException {
+    private File saveFile(InputStream inputStream, String fileName) throws IOException {
 
-        File file = new File(XML_DIR + File.separator + fileName + ".xml");
+        File file = new File(importedFilesDir + File.separator + fileName);
         FileUtils.copyInputStreamToFile(inputStream, file);
+        return file;
     }
 
-    private Collection<PriceItems> parseXml(String xml) throws JsonProcessingException {
-        UnikoXml unikoXml = MAPPER.readValue(xml, UnikoXml.class);
+    private String getFileName(String token, String dateTime) {
+        return (token + "_" + dateTime + ".xml");
+    }
+
+    private Collection<PriceItem> parseXml(File xmlFile) throws IOException {
+        UnikoXml unikoXml = MAPPER.readValue(xmlFile, UnikoXml.class);
 
         return unikoXml.getPrices().getPriceItems().stream()
                 .collect(toMap(
-                        PriceItems::getBarCode,
+                        PriceItem::getBarCode,
                         identity(),
-                        (x, y) -> {
-                            if (x.getPrice().compareTo(y.getPrice()) > 0) {
-                                return x;
-                            } else {
-                                return y;
-                            }
-                        }))
+                        this::getMostExpensivePriceItems))
                 .values();
     }
 
-    private void importToDB(Collection<PriceItems> priceItems, Pharmacy pharmacy) {
+    private void importToDB(Collection<PriceItem> priceItems, Pharmacy pharmacy) {
         List<Medicine> medicines = priceItems.stream()
                 .map(x -> {
                     Medicine medicine = new Medicine();
@@ -110,5 +109,13 @@ public class XMLController {
                 }).collect(toList());
 
         medicineRepository.saveAll(medicines);
+    }
+
+    private PriceItem getMostExpensivePriceItems(PriceItem x, PriceItem y) {
+        if (x.getPrice().compareTo(y.getPrice()) > 0) {
+            return x;
+        } else {
+            return y;
+        }
     }
 }

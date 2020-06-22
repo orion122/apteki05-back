@@ -14,7 +14,7 @@ public class Prices {
 
     @JacksonXmlProperty(localName = "priceItems")
     @JacksonXmlElementWrapper(useWrapping = false)
-    private List<PriceItems> priceItems;
+    private List<PriceItem> priceItems;
 
     private String roundForPrices;
 

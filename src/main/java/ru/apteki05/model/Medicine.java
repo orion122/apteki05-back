@@ -24,7 +24,7 @@ public class Medicine {
     @Column
     private Long count;
 
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
 
     @ManyToOne
