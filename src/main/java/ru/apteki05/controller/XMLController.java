@@ -34,10 +34,11 @@ import static java.util.stream.Collectors.toMap;
 @RestController
 public class XMLController {
 
-    @Value("${xmlDir}")
-    private String XML_DIR;
+    @Value("${importedFiles}")
+    private String IMPORTED_FILES;
 
     private static final XmlMapper MAPPER = new XmlMapper();
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH:mm:ss");
 
     @Autowired
     PharmacyRepository pharmacyRepository;
@@ -54,20 +55,18 @@ public class XMLController {
      */
     @PostMapping("/importXML")
     public void importXML(@RequestParam("file") MultipartFile xmlFile, @RequestParam String token) throws IOException {
-        InputStream inputStream = xmlFile.getInputStream();
-
         String fullFileName = xmlFile.getOriginalFilename();
 //        String fileName = FilenameUtils.removeExtension(fullFileName);
 //        String fileExtension = FilenameUtils.getExtension(xmlFile.getOriginalFilename());
 
         log.info("Import file with name {}. Token: {}", fullFileName, token);
 
-        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
-        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException("Аптека с таким токеном не найдена"));
-        Pharmacy pharmacy = optionalPharmacy.get();
+        String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER));
+        saveFile(xmlFile.getInputStream(), fileName);
 
-        String fileName = getFileName(pharmacy.getName(), getFormattedDateTime());
-        saveFile(inputStream, fileName);
+        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
+        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
+        Pharmacy pharmacy = optionalPharmacy.get();
 
         Collection<PriceItems> priceItems = parseXml(new String(xmlFile.getBytes()));
         importToDB(priceItems, pharmacy);
@@ -75,18 +74,12 @@ public class XMLController {
 
     private void saveFile(InputStream inputStream, String fileName) throws IOException {
 
-        File file = new File(XML_DIR + File.separator + fileName);
+        File file = new File(IMPORTED_FILES + File.separator + fileName);
         FileUtils.copyInputStreamToFile(inputStream, file);
     }
 
-    private String getFileName(String pharmacyName, String dateTime) {
-        return pharmacyName + " " + dateTime + ".xml";
-    }
-
-    private String getFormattedDateTime() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return now.format(formatter);
+    private String getFileName(String token, String dateTime) {
+        return (token + "_" + dateTime + ".xml");
     }
 
     private Collection<PriceItems> parseXml(String xml) throws JsonProcessingException {
