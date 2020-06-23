@@ -1,4 +1,4 @@
-package ru.apteki05.model.input.xml;
+package ru.apteki05.model.parser.syrupandpill;
 
 import lombok.Data;
 

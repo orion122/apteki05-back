@@ -20,6 +20,9 @@ public class Pharmacy {
     @Column(unique = true, nullable = false)
     private String name;
 
+    @Column(unique = true, nullable = false)
+    private String shortName;
+
     @Column
     private String city;
 
