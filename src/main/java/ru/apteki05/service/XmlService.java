@@ -44,6 +44,9 @@ public class XmlService {
         this.medicineRepository = medicineRepository;
     }
 
+    /**
+     * Сохраняет xml-файл на диск
+     */
     public File saveFile(MultipartFile xmlFile, String token) throws IOException {
         String fullFileName = xmlFile.getOriginalFilename();
 
@@ -56,13 +59,15 @@ public class XmlService {
         return file;
     }
 
+    /**
+     * Импортирует данные из файла в БД
+     */
     public void importToDB(File file, String token) throws IOException {
         Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
         optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
         Pharmacy pharmacy = optionalPharmacy.get();
 
-        Collection<PriceItem> priceItem = parseXml(file);
-        List<Medicine> medicines = convertToMedicines(priceItem, pharmacy);
+        List<Medicine> medicines = parseXml(file, pharmacy);
 
         medicineRepository.deleteAllInBatch();
         medicineRepository.saveAll(medicines);
@@ -72,19 +77,21 @@ public class XmlService {
         return (token + "_" + dateTime + ".xml");
     }
 
-    private Collection<PriceItem> parseXml(File xmlFile) throws IOException {
+    private List<Medicine> parseXml(File xmlFile, Pharmacy pharmacy) throws IOException {
         UnikoXml unikoXml = MAPPER.readValue(xmlFile, UnikoXml.class);
 
-        return unikoXml.getPrices().getPriceItems().stream()
+        Collection<PriceItem> priceItems = unikoXml.getPrices().getPriceItems().stream()
                 .collect(toMap(
                         PriceItem::getBarCode,
                         identity(),
                         this::getMostExpensivePriceItems))
                 .values();
+
+        return convertToMedicines(priceItems, pharmacy);
     }
 
-    private List<Medicine> convertToMedicines(Collection<PriceItem> priceItem, Pharmacy pharmacy) {
-        return priceItem.stream()
+    private List<Medicine> convertToMedicines(Collection<PriceItem> priceItems, Pharmacy pharmacy) {
+        return priceItems.stream()
                 .map(x -> {
                     Medicine medicine = new Medicine();
                     medicine.setPrice(x.getPrice());
