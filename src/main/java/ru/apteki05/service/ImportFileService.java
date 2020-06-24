@@ -38,14 +38,18 @@ public class ImportFileService {
      * Импортирует данные из файла в БД
      */
     public void importToDB(File file, String token) throws IOException {
-        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
-        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
-        Pharmacy pharmacy = optionalPharmacy.get();
+        Pharmacy pharmacy = getPharmacy(token);
 
         PharmacyParser pharmacyParser = parserFactory.getParser(token);
         List<Medicine> medicines = pharmacyParser.parse(file, pharmacy);
 
         medicineRepository.deleteByPharmacy(pharmacy);
         medicineRepository.saveAll(medicines);
+    }
+
+    private Pharmacy getPharmacy(String token) {
+        Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
+        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
+        return optionalPharmacy.get();
     }
 }
