@@ -5,12 +5,14 @@ create table pharmacies (
     address varchar(255),
     city varchar(255),
     name varchar(255) not null,
-    token varchar(255),
+    token varchar(255) not null,
+    short_name varchar(255) not null,
     primary key (id)
 );
 
 alter table pharmacies add constraint pharmacies_unique_name unique (name);
 alter table pharmacies add constraint pharmacies_unique_token unique (token);
+alter table pharmacies add constraint pharmacies_unique_short_name unique (short_name);
 
 
 
@@ -27,4 +29,3 @@ create table medicines (
 );
 
 alter table medicines add constraint FKbhhcuoq8hwx6nq2afmtqbvqnt foreign key (pharmacy_id) references pharmacies;
-

@@ -1,4 +1,4 @@
-package ru.apteki05.model.input.xml;
+package ru.apteki05.model.parser.syrupandpill;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
