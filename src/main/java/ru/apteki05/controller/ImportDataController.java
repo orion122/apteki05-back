@@ -1,10 +1,7 @@
 package ru.apteki05.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.apteki05.service.BackupStorageService;
 import ru.apteki05.service.ImportFileService;
@@ -13,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 @RestController
+@RequestMapping("/api")
 public class ImportDataController {
 
     private final BackupStorageService backupStorageService;

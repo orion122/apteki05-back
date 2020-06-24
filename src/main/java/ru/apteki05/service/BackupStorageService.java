@@ -39,7 +39,7 @@ public class BackupStorageService {
 
         log.info("Import file with name {}. Token: {}", fullFileName, token);
 
-        String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER), fileExtension);
+        String fileName = getFileName(token, fileExtension);
         File file = new File(importedFilesDir + File.separator + fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
 
@@ -53,14 +53,14 @@ public class BackupStorageService {
         log.info("Import data from body with size: {}. Token: {}", body.length(), token);
 
         String fileExtension = "txt";
-        String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER), fileExtension);
+        String fileName = getFileName(token, fileExtension);
         Path filePath = Paths.get(importedFilesDir, fileName);
         Files.writeString(filePath, body);
 
         return filePath.toFile();
     }
 
-    private String getFileName(String token, String dateTime, String fileExtension) {
-        return (token + "_" + dateTime + '.' + fileExtension);
+    private String getFileName(String token, String fileExtension) {
+        return (token + "_" + LocalDateTime.now().format(FORMATTER) + '.' + fileExtension);
     }
 }
