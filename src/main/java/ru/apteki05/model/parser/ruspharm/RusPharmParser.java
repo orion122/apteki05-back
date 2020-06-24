@@ -16,7 +16,6 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-//@Component
 public class RusPharmParser implements PharmacyParser {
 
     public List<Medicine> parse(File csvFile, Pharmacy pharmacy) throws IOException {

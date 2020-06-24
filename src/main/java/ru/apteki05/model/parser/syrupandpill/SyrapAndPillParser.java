@@ -15,7 +15,6 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-//@Component
 public class SyrapAndPillParser implements PharmacyParser {
 
     public List<Medicine> parse(File xmlFile, Pharmacy pharmacy) throws IOException {
