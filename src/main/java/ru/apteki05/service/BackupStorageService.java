@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -36,14 +39,28 @@ public class BackupStorageService {
 
         log.info("Import file with name {}. Token: {}", fullFileName, token);
 
-        String fileName = getFileName(token, LocalDateTime.now().format(FORMATTER), fileExtension);
+        String fileName = getFileName(token, fileExtension);
         File file = new File(importedFilesDir + File.separator + fileName);
         FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
 
         return file;
     }
 
-    private String getFileName(String token, String dateTime, String fileExtension) {
-        return (token + "_" + dateTime + '.' + fileExtension);
+    /**
+     * Сохраняет данные из body в файл на диске
+     */
+    public File saveBodyToFile(String body, String token) throws IOException {
+        log.info("Import data from body with size: {}. Token: {}", body.length(), token);
+
+        String fileExtension = "txt";
+        String fileName = getFileName(token, fileExtension);
+        Path filePath = Paths.get(importedFilesDir, fileName);
+        Files.writeString(filePath, body);
+
+        return filePath.toFile();
+    }
+
+    private String getFileName(String token, String fileExtension) {
+        return (token + "_" + LocalDateTime.now().format(FORMATTER) + '.' + fileExtension);
     }
 }
