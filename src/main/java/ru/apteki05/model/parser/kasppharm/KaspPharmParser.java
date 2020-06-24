@@ -17,10 +17,11 @@ import static java.util.stream.Collectors.toList;
 
 public class KaspPharmParser implements PharmacyParser {
 
+    private static final XmlMapper MAPPER = new XmlMapper();
+
     public List<Medicine> parse(File xmlFile, Pharmacy pharmacy) throws IOException {
-        XmlMapper mapper = new XmlMapper();
         String content = Files.readString(xmlFile.toPath(), Charset.forName("windows-1251"));
-        Warebase warebase = mapper.readValue(content, Warebase.class);
+        Warebase warebase = MAPPER.readValue(content, Warebase.class);
 
         return convertToMedicines(warebase, pharmacy);
     }
