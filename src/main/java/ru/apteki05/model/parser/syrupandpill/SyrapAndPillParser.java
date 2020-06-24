@@ -15,12 +15,12 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-//@Component
 public class SyrapAndPillParser implements PharmacyParser {
 
+    private static final XmlMapper MAPPER = new XmlMapper();
+
     public List<Medicine> parse(File xmlFile, Pharmacy pharmacy) throws IOException {
-        XmlMapper mapper = new XmlMapper();
-        UnikoXml unikoXml = mapper.readValue(xmlFile, UnikoXml.class);
+        UnikoXml unikoXml = MAPPER.readValue(xmlFile, UnikoXml.class);
 
         Collection<PriceItem> priceItems = unikoXml.getPrices().getPriceItems().stream()
                 .collect(toMap(

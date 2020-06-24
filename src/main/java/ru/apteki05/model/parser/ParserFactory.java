@@ -3,6 +3,7 @@ package ru.apteki05.model.parser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.apteki05.model.Pharmacy;
+import ru.apteki05.model.parser.kasppharm.KaspPharmParser;
 import ru.apteki05.model.parser.ruspharm.RusPharmParser;
 import ru.apteki05.model.parser.syrupandpill.SyrapAndPillParser;
 import ru.apteki05.repository.PharmacyRepository;
@@ -18,7 +19,8 @@ public class ParserFactory {
 
     private Map<String, Supplier<PharmacyParser>> pharmacyParsers = Map.of(
             "syrup_and_pill", SyrapAndPillParser::new,
-            "rus_pharm", RusPharmParser::new
+            "rus_pharm", RusPharmParser::new,
+            "kasp_pharm", KaspPharmParser::new
     );
 
     @Autowired

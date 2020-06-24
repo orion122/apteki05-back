@@ -16,13 +16,13 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-//@Component
 public class RusPharmParser implements PharmacyParser {
 
+    private static final CsvMapper MAPPER = new CsvMapper();
+
     public List<Medicine> parse(File csvFile, Pharmacy pharmacy) throws IOException {
-        CsvMapper mapper = new CsvMapper();
         CsvSchema schema = CsvSchema.emptySchema().withHeader().withColumnSeparator(';');
-        MappingIterator<RusPharmMedicine> iterator = mapper.readerFor(RusPharmMedicine.class).with(schema).readValues(csvFile);
+        MappingIterator<RusPharmMedicine> iterator = MAPPER.readerFor(RusPharmMedicine.class).with(schema).readValues(csvFile);
 
         return convertToMedicines(iterator, pharmacy);
     }
