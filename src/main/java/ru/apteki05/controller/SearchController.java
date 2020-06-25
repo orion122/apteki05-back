@@ -25,9 +25,12 @@ public class SearchController {
     }
 
     @GetMapping("/search")
-    public ListResult<MedicineOutputModel> search(@RequestParam String medicineNameFilter, Integer page, Integer size) {
+    public ListResult<MedicineOutputModel> search(
+            @RequestParam String medicineNameFilter,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "20") Integer size) {
 
-        List<Medicine> medicines = searchService.search(medicineNameFilter, page, size);
-        return ListResultUtil.of(medicines, size, page, MedicineOutputModel::new);
+        List<Medicine> medicines = searchService.search(medicineNameFilter);
+        return ListResultUtil.getResult(medicines, page - 1, size, MedicineOutputModel::new);
     }
 }

@@ -10,10 +10,10 @@ import java.util.List;
 public class ListResult<T> {
     private List<T> items;
     private long total;
-    private long size;
     private long page;
+    private long size;
 
-    public static <T> ListResult<T> of(List<T> items, Integer total, Integer size, Integer page) {
-        return new ListResult<T>(items, total, size, page);
+    public static <T> ListResult<T> of(List<T> items, Integer total, Integer page, Integer size) {
+        return new ListResult<T>(items, total, page, size);
     }
 }

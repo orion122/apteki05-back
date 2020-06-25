@@ -17,7 +17,7 @@ public class SearchService {
         this.medicineRepository = medicineRepository;
     }
 
-    public List<Medicine> search(String word, Integer page, Integer size) {
+    public List<Medicine> search(String word) {
         return medicineRepository.findAllByNameContainingIgnoreCase(word);
     }
 }

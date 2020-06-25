@@ -11,18 +11,14 @@ import static java.util.stream.Collectors.toList;
 @Data
 @AllArgsConstructor
 public class ListResultUtil<T, R> {
-    private List<T> items;
-    private long size;
-    private long page;
-    private Function<T, R> function;
 
-    public static <T, R> ListResult<R> of(List<T> items, Integer size, Integer page, Function<T, R> function) {
+    public static <T, R> ListResult<R> getResult(List<T> items, Integer page, Integer size, Function<T, R> converter) {
         List<R> limitedItems = items.stream()
                 .skip(page * size)
                 .limit(size)
-                .map(function)
+                .map(converter)
                 .collect(toList());
 
-        return ListResult.of(limitedItems, items.size(), size, page);
+        return ListResult.of(limitedItems, items.size(), page, size);
     }
 }
