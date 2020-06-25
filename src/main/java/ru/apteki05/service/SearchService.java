@@ -7,9 +7,6 @@ import ru.apteki05.repository.MedicineRepository;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
-
 @Component
 public class SearchService {
 
@@ -21,11 +18,6 @@ public class SearchService {
     }
 
     public List<Medicine> search(String word, Integer page, Integer size) {
-        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(word);
-
-        return medicines.stream()
-                .skip(page * size)
-                .limit(size)
-                .collect(toList());
+        return medicineRepository.findAllByNameContainingIgnoreCase(word);
     }
 }

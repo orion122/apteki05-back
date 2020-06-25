@@ -13,7 +13,7 @@ public class ListResult<T> {
     private long size;
     private long page;
 
-    public static <T> ListResult<T> of(List<T> items, Integer size, Integer page) {
-        return new ListResult<T>(items, items.size(), size, page);
+    public static <T> ListResult<T> of(List<T> items, Integer total, Integer size, Integer page) {
+        return new ListResult<T>(items, total, size, page);
     }
 }
