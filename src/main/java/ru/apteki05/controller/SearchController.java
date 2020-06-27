@@ -30,7 +30,7 @@ public class SearchController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
 
-        List<Medicine> medicines = searchService.search(medicineNameFilter);
+        List<Medicine> medicines = searchService.fuzzySearch(medicineNameFilter);
         return ListResultUtil.getResult(medicines, page - 1, size, MedicineOutputModel::new);
     }
 }
