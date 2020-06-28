@@ -1,12 +1,11 @@
 package ru.apteki05.service;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.output.MedicineOutputModel;
@@ -63,18 +62,15 @@ public class SearchService {
         return result;
     }
 
-    public List<Medicine> fuzzySearch(String word) {
-        //Get the FullTextEntityManager
+    public List<MedicineOutputModel> fuzzySearch(String word) {
         FullTextEntityManager fullTextEntityManager
                 = Search.getFullTextEntityManager(entityManager);
 
-        //Create a Hibernate Search DSL query builder for the required entity
         QueryBuilder queryBuilder = fullTextEntityManager.getSearchFactory()
                 .buildQueryBuilder()
                 .forEntity(Medicine.class)
                 .get();
 
-        //Generate a Lucene query using the builder
         Query query = queryBuilder
                 .keyword()
                 .fuzzy()
@@ -87,7 +83,8 @@ public class SearchService {
         FullTextQuery fullTextQuery
                 = fullTextEntityManager.createFullTextQuery(query, Medicine.class);
 
-        //returns JPA managed entities
-        return fullTextQuery.getResultList();
+        List<Medicine> resultList = fullTextQuery.getResultList();
+
+        return mapList(resultList, MedicineOutputModel::new);
     }
 }
