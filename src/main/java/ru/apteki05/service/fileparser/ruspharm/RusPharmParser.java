@@ -1,11 +1,12 @@
-package ru.apteki05.model.parser.ruspharm;
+package ru.apteki05.service.fileparser.ruspharm;
 
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.parser.PharmacyParser;
+import ru.apteki05.model.parser.ruspharm.RusPharmMedicine;
+import ru.apteki05.service.fileparser.PharmacyParser;
 
 import java.io.File;
 import java.io.IOException;

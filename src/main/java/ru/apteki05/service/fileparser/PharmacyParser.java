@@ -1,4 +1,4 @@
-package ru.apteki05.model.parser;
+package ru.apteki05.service.fileparser;
 
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;

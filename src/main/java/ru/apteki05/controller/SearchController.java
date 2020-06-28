@@ -11,6 +11,7 @@ import ru.apteki05.output.ListResultUtil;
 import ru.apteki05.output.MedicineOutputModel;
 import ru.apteki05.service.SearchService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,7 +31,12 @@ public class SearchController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
 
-        List<Medicine> medicines = searchService.fuzzySearch(medicineNameFilter);
-        return ListResultUtil.getResult(medicines, page - 1, size, MedicineOutputModel::new);
+        List<MedicineOutputModel> fromDB = searchService.fuzzySearch(medicineNameFilter);
+        List<MedicineOutputModel> fromOutside = searchService.outsideSearch(medicineNameFilter);
+
+        List<MedicineOutputModel> all = new ArrayList<>(fromDB);
+        all.addAll(fromOutside);
+
+        return ListResultUtil.getResult(all, page, size);
     }
 }

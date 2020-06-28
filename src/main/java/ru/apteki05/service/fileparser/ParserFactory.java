@@ -1,12 +1,12 @@
-package ru.apteki05.model.parser;
+package ru.apteki05.service.fileparser;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.parser.kasppharm.KaspPharmParser;
-import ru.apteki05.model.parser.ruspharm.RusPharmParser;
-import ru.apteki05.model.parser.syrupandpill.SyrapAndPillParser;
 import ru.apteki05.repository.PharmacyRepository;
+import ru.apteki05.service.fileparser.kasppharm.KaspPharmParser;
+import ru.apteki05.service.fileparser.ruspharm.RusPharmParser;
+import ru.apteki05.service.fileparser.syrupandpill.SyrapAndPillParser;
 
 import java.util.Map;
 import java.util.Optional;
