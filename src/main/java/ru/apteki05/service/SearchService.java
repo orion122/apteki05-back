@@ -35,15 +35,15 @@ public class SearchService {
     private final AptechniyDomParser aptechniyDomParser;
     private final EntityManager entityManager;
 
-    public List<MedicineOutputModel> search(String word) {
-        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(word);
+    public List<MedicineOutputModel> search(String searchQuery) {
+        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(searchQuery);
 
         return mapList(medicines, MedicineOutputModel::new);
     }
 
     public List<MedicineOutputModel> outsideSearch(String medicineNameFilter) {
 
-        Long maxMedicineId = medicineRepository.findMaxId();
+        Long maxMedicineId = medicineRepository.getMaxId();
         List<MedicineOutputModel> result = new CopyOnWriteArrayList<>();
 
         List<WebParser> webParsers = List.of(dagAptekiParser, dagPharmParser, aptechniyDomParser);
@@ -62,7 +62,7 @@ public class SearchService {
         return result;
     }
 
-    public List<MedicineOutputModel> fuzzySearch(String word) {
+    public List<MedicineOutputModel> fuzzySearch(String searchQuery) {
         FullTextEntityManager fullTextEntityManager
                 = Search.getFullTextEntityManager(entityManager);
 
@@ -77,7 +77,7 @@ public class SearchService {
                 .withEditDistanceUpTo(2)
 //                .withPrefixLength(0)
                 .onField("name")
-                .matching(word)
+                .matching(searchQuery)
                 .createQuery();
 
         FullTextQuery fullTextQuery

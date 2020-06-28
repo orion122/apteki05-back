@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface WebParser {
 
-    List<MedicineOutputModel> request(String drugName, Long maxMedicineId);
+    List<MedicineOutputModel> request(String medicineName, Long maxMedicineId);
 }

@@ -12,10 +12,10 @@ import java.util.List;
 @Repository
 public interface MedicineRepository extends JpaRepository<Medicine, Long> {
 
-    List<Medicine> findAllByNameContainingIgnoreCase(String word);
+    List<Medicine> findAllByNameContainingIgnoreCase(String searchQuery);
 
     @Query("SELECT MAX(id) FROM Medicine")
-    Long findMaxId();
+    Long getMaxId();
 
     @Transactional
     Long deleteByPharmacy(Pharmacy pharmacy);

@@ -35,18 +35,18 @@ public class AptechniyDomParser implements WebParser {
 //        tableItems.forEach(System.out::println);
 //    }
 
-    public List<MedicineOutputModel> request(String drugName, Long maxMedicineId) {
+    public List<MedicineOutputModel> request(String searchQuery, Long maxMedicineId) {
         try {
-            return requestInner(drugName, maxMedicineId);
+            return requestInner(searchQuery, maxMedicineId);
         } catch (IOException | RuntimeException e) {
-            log.error("Error while sending request {} to aptechniyDom: {}", drugName, e);
+            log.error("Error while sending request {} to aptechniyDom: {}", searchQuery, e);
             return emptyList();
         }
     }
 
-    public List<MedicineOutputModel> requestInner(String drugName, long id) throws IOException {
+    public List<MedicineOutputModel> requestInner(String searchQuery, long id) throws IOException {
 
-        String encodedDrugName = URLEncoder.encode(drugName, StandardCharsets.UTF_8);
+        String encodedDrugName = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8);
 
         Document doc = Jsoup.connect(URL)
                 .timeout(TIMEOUT)

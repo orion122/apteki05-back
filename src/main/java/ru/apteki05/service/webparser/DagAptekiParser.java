@@ -38,22 +38,22 @@ public class DagAptekiParser implements WebParser {
 //        tableItems.forEach(System.out::println);
 //    }
 
-    public List<MedicineOutputModel> request(String drugName, Long maxMedicineId) {
+    public List<MedicineOutputModel> request(String searchQuery, Long maxMedicineId) {
         try {
-            return requestInner(drugName, maxMedicineId);
+            return requestInner(searchQuery, maxMedicineId);
         } catch (IOException | RuntimeException e) {
-            log.error("Error while sending request {} to dagapteki: {}", drugName, e);
+            log.error("Error while sending request {} to dagapteki: {}", searchQuery, e);
             return emptyList();
         }
     }
 
-    private List<MedicineOutputModel> requestInner(String drugName, long id) throws IOException {
+    private List<MedicineOutputModel> requestInner(String searchQuery, long id) throws IOException {
 
-        String encodedDrugName = URLEncoder.encode(drugName, StandardCharsets.UTF_8);
+        String encodedMedicineName = URLEncoder.encode(searchQuery, StandardCharsets.UTF_8);
 
         Document doc = Jsoup.connect(URL)
                 .timeout(TIMEOUT)
-                .requestBody("search_text_s=&search_text=" + encodedDrugName)
+                .requestBody("search_text_s=&search_text=" + encodedMedicineName)
                 .post();
 
         if (doc.getElementsByTag("tbody").isEmpty()) {

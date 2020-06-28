@@ -32,19 +32,19 @@ public class DagPharmParser implements WebParser {
 //        tableItems.forEach(System.out::println);
 //    }
 
-    public List<MedicineOutputModel> request(String drugName, Long maxMedicineId) {
+    public List<MedicineOutputModel> request(String searchQuery, Long maxMedicineId) {
         try {
-            return requestInner(drugName, maxMedicineId);
+            return requestInner(searchQuery, maxMedicineId);
         } catch (IOException | RuntimeException e) {
-            log.error("Error while sending request {} to dagpharm: {}", drugName, e);
+            log.error("Error while sending request {} to dagpharm: {}", searchQuery, e);
             return emptyList();
         }
     }
 
-    public List<MedicineOutputModel> requestInner(String drugName, long id) throws IOException {
-        
+    public List<MedicineOutputModel> requestInner(String searchQuery, long id) throws IOException {
+
         Document doc = Jsoup.connect(URL)
-                .data("utf8", "✓", "text", drugName)
+                .data("utf8", "✓", "text", searchQuery)
                 .timeout(TIMEOUT)
                 .get();
 
