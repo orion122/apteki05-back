@@ -1,6 +1,8 @@
 package ru.apteki05.model;
 
 import lombok.Data;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -8,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Indexed
 @Table(name = "medicines")
 public class Medicine {
     @Id
@@ -16,6 +19,7 @@ public class Medicine {
     private Long id;
 
     @Column
+    @Field
     private String name;
 
     @Column
