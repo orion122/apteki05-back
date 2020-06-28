@@ -16,6 +16,7 @@ import ru.apteki05.service.webparser.DagPharmParser;
 import ru.apteki05.service.webparser.WebParser;
 
 import javax.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -47,17 +48,20 @@ public class SearchService {
         List<MedicineOutputModel> result = new CopyOnWriteArrayList<>();
 
         List<WebParser> webParsers = List.of(dagAptekiParser, dagPharmParser, aptechniyDomParser);
+        List<CompletableFuture<List<MedicineOutputModel>>> pharmacyFutures = new ArrayList<>();
 
         for (int i = 0; i < webParsers.size(); i++) {
             int idOffset = i * 1000;
             WebParser webParser = webParsers.get(i);
 
-            CompletableFuture<List<MedicineOutputModel>> pharmacyFuture =
+            var pharmacyFuture =
                     CompletableFuture.supplyAsync(() -> webParser.request(medicineNameFilter, maxMedicineId + idOffset), EXECUTOR_SERVICE);
 
             pharmacyFuture.thenAccept(result::addAll);
-            pharmacyFuture.join();
+            pharmacyFutures.add(pharmacyFuture);
         }
+
+        pharmacyFutures.forEach(CompletableFuture::join);
 
         return result;
     }
