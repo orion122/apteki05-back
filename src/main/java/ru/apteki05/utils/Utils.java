@@ -1,9 +1,6 @@
 package ru.apteki05.utils;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -25,13 +22,4 @@ public class Utils {
                 .filter(filter)
                 .collect(toList());
     }
-
-    public static LocalDateTime toLocalDateTime(Date dateToConvert) {
-        return LocalDateTime.ofInstant(dateToConvert.toInstant(), ZoneId.systemDefault());
-    }
-
-    public static Date toJavaUtilDate(LocalDateTime dateToConvert) {
-        return Date.from(dateToConvert.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
 }
