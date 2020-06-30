@@ -1,9 +1,10 @@
-package ru.apteki05.model.parser.kasppharm;
+package ru.apteki05.service.fileparser.kasppharm;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.parser.PharmacyParser;
+import ru.apteki05.model.parser.kasppharm.Warebase;
+import ru.apteki05.service.fileparser.PharmacyParser;
 
 import java.io.File;
 import java.io.IOException;

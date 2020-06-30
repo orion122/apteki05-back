@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.parser.ParserFactory;
-import ru.apteki05.model.parser.PharmacyParser;
 import ru.apteki05.repository.MedicineRepository;
 import ru.apteki05.repository.PharmacyRepository;
+import ru.apteki05.service.fileparser.ParserFactory;
+import ru.apteki05.service.fileparser.PharmacyParser;
 
 import java.io.File;
 import java.io.IOException;

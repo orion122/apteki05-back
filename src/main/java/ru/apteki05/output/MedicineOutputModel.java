@@ -2,12 +2,14 @@ package ru.apteki05.output;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.apteki05.model.Medicine;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
 public class MedicineOutputModel {
     private Long id;
     private String medicineName;
