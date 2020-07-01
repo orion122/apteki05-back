@@ -6,6 +6,7 @@ import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.jpa.FullTextQuery;
 import org.hibernate.search.jpa.Search;
 import org.hibernate.search.query.dsl.QueryBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.output.MedicineOutputModel;
@@ -36,11 +37,22 @@ public class SearchService {
     private final AptechniyDomParser aptechniyDomParser;
     private final EntityManager entityManager;
 
-    public List<MedicineOutputModel> search(String searchQuery) {
-        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(searchQuery);
+    @Cacheable("medicines")
+    public List<MedicineOutputModel> aggregatedSearch(String searchQuery) {
+        List<MedicineOutputModel> fromDB = fuzzySearch(searchQuery);
+        List<MedicineOutputModel> fromOutside = outsideSearch(searchQuery);
 
-        return mapList(medicines, MedicineOutputModel::new);
+        List<MedicineOutputModel> all = new ArrayList<>(fromDB);
+        all.addAll(fromOutside);
+
+        return all;
     }
+
+//    public List<MedicineOutputModel> search(String searchQuery) {
+//        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(searchQuery);
+//
+//        return mapList(medicines, MedicineOutputModel::new);
+//    }
 
     public List<MedicineOutputModel> outsideSearch(String medicineNameFilter) {
 
