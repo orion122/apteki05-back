@@ -1,5 +1,6 @@
 package ru.apteki05.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +30,9 @@ public class SearchController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
 
-        List<MedicineOutputModel> medicines = searchService.aggregatedSearch(medicineNameFilter.toLowerCase());
+        String searchQuery = StringUtils.normalizeSpace(medicineNameFilter).toLowerCase();
+
+        List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery);
 
         return ListResultUtil.getResult(medicines, page, size);
     }
