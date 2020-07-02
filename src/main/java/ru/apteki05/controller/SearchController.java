@@ -1,17 +1,16 @@
 package ru.apteki05.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.apteki05.model.Medicine;
 import ru.apteki05.output.ListResult;
 import ru.apteki05.output.ListResultUtil;
 import ru.apteki05.output.MedicineOutputModel;
 import ru.apteki05.service.SearchService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -31,12 +30,10 @@ public class SearchController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "20") Integer size) {
 
-        List<MedicineOutputModel> fromDB = searchService.fuzzySearch(medicineNameFilter);
-        List<MedicineOutputModel> fromOutside = searchService.outsideSearch(medicineNameFilter);
+        String searchQuery = StringUtils.normalizeSpace(medicineNameFilter).toLowerCase();
 
-        List<MedicineOutputModel> all = new ArrayList<>(fromDB);
-        all.addAll(fromOutside);
+        List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery);
 
-        return ListResultUtil.getResult(all, page, size);
+        return ListResultUtil.getResult(medicines, page, size);
     }
 }
