@@ -1,5 +1,10 @@
 package ru.apteki05.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,11 +14,6 @@ import ru.apteki05.repository.MedicineRepository;
 import ru.apteki05.repository.PharmacyRepository;
 import ru.apteki05.service.fileparser.ParserFactory;
 import ru.apteki05.service.fileparser.PharmacyParser;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -49,7 +49,7 @@ public class ImportFileService {
 
     private Pharmacy getPharmacy(String token) {
         Optional<Pharmacy> optionalPharmacy = pharmacyRepository.findByToken(token);
-        optionalPharmacy.orElseThrow(() -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
-        return optionalPharmacy.get();
+        return optionalPharmacy.orElseThrow(
+                () -> new IllegalArgumentException(String.format("Аптека с токеном %s не найдена", token)));
     }
 }

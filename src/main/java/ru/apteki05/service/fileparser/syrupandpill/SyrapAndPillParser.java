@@ -1,17 +1,17 @@
 package ru.apteki05.service.fileparser.syrupandpill;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import ru.apteki05.model.Medicine;
 import ru.apteki05.model.Pharmacy;
 import ru.apteki05.model.parser.syrupandpill.PriceItem;
 import ru.apteki05.model.parser.syrupandpill.UnikoXml;
 import ru.apteki05.service.fileparser.PharmacyParser;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
 
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
@@ -21,6 +21,7 @@ public class SyrapAndPillParser implements PharmacyParser {
 
     private static final XmlMapper MAPPER = new XmlMapper();
 
+    @Override
     public List<Medicine> parse(File xmlFile, Pharmacy pharmacy) throws IOException {
         UnikoXml unikoXml = MAPPER.readValue(xmlFile, UnikoXml.class);
 

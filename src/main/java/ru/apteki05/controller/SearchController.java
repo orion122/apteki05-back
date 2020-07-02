@@ -1,5 +1,8 @@
 package ru.apteki05.controller;
 
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,10 +14,9 @@ import ru.apteki05.output.ListResultUtil;
 import ru.apteki05.output.MedicineOutputModel;
 import ru.apteki05.service.SearchService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class SearchController {
 
     private final SearchService searchService;
@@ -32,8 +34,13 @@ public class SearchController {
 
         String searchQuery = StringUtils.normalizeSpace(medicineNameFilter).toLowerCase();
 
+        if (medicineNameFilter.length() < 2) {
+            throw new RuntimeException("Forbidden");
+        }
+
         List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery);
 
+        log.info("{} items, page: {}, by filter: {}", medicines.size(), page, medicineNameFilter);
         return ListResultUtil.getResult(medicines, page, size);
     }
 }

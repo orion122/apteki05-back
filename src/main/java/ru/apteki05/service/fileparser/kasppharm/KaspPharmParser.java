@@ -1,11 +1,5 @@
 package ru.apteki05.service.fileparser.kasppharm;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import ru.apteki05.model.Medicine;
-import ru.apteki05.model.Pharmacy;
-import ru.apteki05.model.parser.kasppharm.Warebase;
-import ru.apteki05.service.fileparser.PharmacyParser;
-
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -14,12 +8,19 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import ru.apteki05.model.Medicine;
+import ru.apteki05.model.Pharmacy;
+import ru.apteki05.model.parser.kasppharm.Warebase;
+import ru.apteki05.service.fileparser.PharmacyParser;
+
 import static java.util.stream.Collectors.toList;
 
 public class KaspPharmParser implements PharmacyParser {
 
     private static final XmlMapper MAPPER = new XmlMapper();
 
+    @Override
     public List<Medicine> parse(File xmlFile, Pharmacy pharmacy) throws IOException {
         String content = Files.readString(xmlFile.toPath(), Charset.forName("windows-1251"));
         Warebase warebase = MAPPER.readValue(content, Warebase.class);
