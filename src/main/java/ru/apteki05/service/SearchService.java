@@ -1,5 +1,14 @@
 package ru.apteki05.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.persistence.EntityManager;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.lucene.search.Query;
 import org.hibernate.search.jpa.FullTextEntityManager;
@@ -16,21 +25,13 @@ import ru.apteki05.service.webparser.DagAptekiParser;
 import ru.apteki05.service.webparser.DagPharmParser;
 import ru.apteki05.service.webparser.WebParser;
 
-import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import static ru.apteki05.utils.Utils.mapList;
 
 @Component
 @RequiredArgsConstructor
 public class SearchService {
 
-    private final static ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(15);
+    private static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(15);
     private final MedicineRepository medicineRepository;
     private final DagAptekiParser dagAptekiParser;
     private final DagPharmParser dagPharmParser;
@@ -48,13 +49,7 @@ public class SearchService {
         return all;
     }
 
-//    public List<MedicineOutputModel> search(String searchQuery) {
-//        List<Medicine> medicines = medicineRepository.findAllByNameContainingIgnoreCase(searchQuery);
-//
-//        return mapList(medicines, MedicineOutputModel::new);
-//    }
-
-    public List<MedicineOutputModel> outsideSearch(String medicineNameFilter) {
+    private List<MedicineOutputModel> outsideSearch(String medicineNameFilter) {
 
         Long maxMedicineId = medicineRepository.getMaxId();
         List<MedicineOutputModel> result = new CopyOnWriteArrayList<>();
@@ -67,7 +62,8 @@ public class SearchService {
             WebParser webParser = webParsers.get(i);
 
             var pharmacyFuture =
-                    CompletableFuture.supplyAsync(() -> webParser.request(medicineNameFilter, maxMedicineId + idOffset), EXECUTOR_SERVICE);
+                    CompletableFuture.supplyAsync(() -> webParser.request(medicineNameFilter,
+                            maxMedicineId + idOffset), EXECUTOR_SERVICE);
 
             pharmacyFuture.thenAccept(result::addAll);
             pharmacyFutures.add(pharmacyFuture);
@@ -78,7 +74,7 @@ public class SearchService {
         return result;
     }
 
-    public List<MedicineOutputModel> fuzzySearch(String searchQuery) {
+    private List<MedicineOutputModel> fuzzySearch(String searchQuery) {
         FullTextEntityManager fullTextEntityManager
                 = Search.getFullTextEntityManager(entityManager);
 
