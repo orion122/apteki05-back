@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -34,8 +33,8 @@ public class DagAptekiParser implements WebParser {
 
 
 //    public static void main(String[] args) {
-//        DagaptekiParser dagaptekiParser = new DagaptekiParser();
-//        List<MedicineOutputModel> tableItems = dagaptekiParser.request("нос");
+//        DagAptekiParser dagaptekiParser = new DagAptekiParser();
+//        List<MedicineOutputModel> tableItems = dagaptekiParser.request("нос", 1L);
 //        tableItems.forEach(System.out::println);
 //    }
 
@@ -102,7 +101,7 @@ public class DagAptekiParser implements WebParser {
                 }
 
                 if (i == 4) {
-                    medicineOutputModel.setUpdateDate(LocalDateTime.from(parseUpdateTime(child.text())));
+                    medicineOutputModel.setUpdateDate(parseUpdateTime(child.text()));
                 }
 
             }
@@ -123,19 +122,19 @@ public class DagAptekiParser implements WebParser {
                 .collect(toList());
     }
 
-    private static LocalDate parseUpdateTime(String str) {
-        LocalDate updateTime;
+    private static LocalDateTime parseUpdateTime(String str) {
+        LocalDateTime updateTime;
         try {
-            updateTime = LocalDate.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
+            updateTime = LocalDateTime.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
 
             // Не знаем год, поэтому сконкатенированная дата может быть в будущем
-            if (updateTime.isAfter(LocalDate.now())) {
-                updateTime = LocalDate.MIN;
+            if (updateTime.isAfter(LocalDateTime.now())) {
+                updateTime = LocalDateTime.MIN;
             }
 
         } catch (DateTimeParseException e) {
             log.error("Can not parse date at dagapteki: {}", e.getMessage());
-            updateTime = LocalDate.now();
+            updateTime = LocalDateTime.now();
         }
         return updateTime;
     }
