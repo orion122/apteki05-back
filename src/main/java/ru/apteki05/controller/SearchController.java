@@ -34,8 +34,8 @@ public class SearchController {
 
         String searchQuery = StringUtils.normalizeSpace(medicineNameFilter).toLowerCase();
 
-        if (medicineNameFilter.length() < 2) {
-            throw new RuntimeException("Forbidden");
+        if (searchQuery.length() < 2) {
+            throw new RuntimeException("Forbidden. Search: " + searchQuery);
         }
 
         List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery);
