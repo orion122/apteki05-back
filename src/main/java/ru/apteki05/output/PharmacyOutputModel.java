@@ -7,6 +7,7 @@ import ru.apteki05.model.Pharmacy;
 public class PharmacyOutputModel {
     private Long id;
     private String name;
+    private String shortName;
     private String city;
     private String address;
     private String phone;
@@ -22,6 +23,7 @@ public class PharmacyOutputModel {
         outputModel.setPhone(source.getPhone());
         outputModel.setUrl(source.getUrl());
         outputModel.setTimetable(source.getTimetable());
+        outputModel.setShortName(source.getShortName());
         return outputModel;
     }
 }

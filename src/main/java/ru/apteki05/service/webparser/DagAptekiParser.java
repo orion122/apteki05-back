@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -123,20 +124,20 @@ public class DagAptekiParser implements WebParser {
     }
 
     private static LocalDateTime parseUpdateTime(String str) {
-        LocalDateTime updateTime;
+        LocalDate updateTime;
         try {
-            updateTime = LocalDateTime.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
+            updateTime = LocalDate.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
 
             // Не знаем год, поэтому сконкатенированная дата может быть в будущем
-            if (updateTime.isAfter(LocalDateTime.now())) {
-                updateTime = LocalDateTime.MIN;
+            if (updateTime.isAfter(LocalDate.now())) {
+                updateTime = LocalDate.MIN;
             }
 
         } catch (DateTimeParseException e) {
             log.error("Can not parse date at dagapteki: {}", e.getMessage());
-            updateTime = LocalDateTime.now();
+            updateTime = LocalDate.now();
         }
-        return updateTime;
+        return updateTime.atStartOfDay();
     }
 
 }

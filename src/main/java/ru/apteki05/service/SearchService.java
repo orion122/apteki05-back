@@ -86,7 +86,7 @@ public class SearchService {
         Query query = queryBuilder
                 .keyword()
                 .fuzzy()
-                .withEditDistanceUpTo(2)
+                .withEditDistanceUpTo(1)
 //                .withPrefixLength(0)
                 .onField("name")
                 .matching(searchQuery)
