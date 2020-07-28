@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.apteki05.input.OrderInputModel;
 import ru.apteki05.output.ListResult;
 import ru.apteki05.output.ListResultUtil;
 import ru.apteki05.output.MedicineOutputModel;
@@ -30,7 +31,9 @@ public class SearchController {
     public ListResult<MedicineOutputModel> search(
             @RequestParam String medicineNameFilter,
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "20") Integer size) {
+            @RequestParam(defaultValue = "20") Integer size,
+            @RequestParam(defaultValue = "false") boolean isExactSearch,
+            @RequestParam(defaultValue = "DEFAULT") OrderInputModel orderInputModel) {
 
         String searchQuery = StringUtils.normalizeSpace(medicineNameFilter).toLowerCase();
 
@@ -38,9 +41,13 @@ public class SearchController {
             throw new RuntimeException("Forbidden. Search: " + searchQuery);
         }
 
-        List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery);
+        List<MedicineOutputModel> medicines = searchService.aggregatedSearch(searchQuery, isExactSearch);
 
-        log.info("{} items, page: {}, by filter: {}", medicines.size(), page, medicineNameFilter);
+        log.info("isExact: {}, {} items, page: {}, by filter: {}",
+                isExactSearch, medicines.size(), page, medicineNameFilter);
+
+        medicines.sort(orderInputModel.getComparator());
         return ListResultUtil.getResult(medicines, page, size);
     }
+
 }

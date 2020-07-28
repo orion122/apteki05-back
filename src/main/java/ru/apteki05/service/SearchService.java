@@ -39,8 +39,15 @@ public class SearchService {
     private final EntityManager entityManager;
 
     @Cacheable("medicines")
-    public List<MedicineOutputModel> aggregatedSearch(String searchQuery) {
-        List<MedicineOutputModel> fromDB = fuzzySearch(searchQuery);
+    public List<MedicineOutputModel> aggregatedSearch(String searchQuery, boolean isExactSearch) {
+
+        List<MedicineOutputModel> fromDB;
+        if (isExactSearch) {
+            fromDB = exactSearch(searchQuery);
+        } else {
+            fromDB = fuzzySearch(searchQuery);
+        }
+
         List<MedicineOutputModel> fromOutside = outsideSearch(searchQuery);
 
         List<MedicineOutputModel> all = new ArrayList<>(fromDB);
@@ -98,5 +105,10 @@ public class SearchService {
         List<Medicine> resultList = fullTextQuery.getResultList();
 
         return mapList(resultList, MedicineOutputModel::new);
+    }
+
+    private List<MedicineOutputModel> exactSearch(String searchQuery) {
+        List<Medicine> result = medicineRepository.findAllByNameContainingIgnoreCase(searchQuery);
+        return mapList(result, MedicineOutputModel::new);
     }
 }
