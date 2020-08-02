@@ -1,5 +1,16 @@
 package ru.apteki05.service.webparser;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -7,16 +18,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import ru.apteki05.output.MedicineOutputModel;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -33,8 +34,8 @@ public class DagAptekiParser implements WebParser {
 
 
 //    public static void main(String[] args) {
-//        DagaptekiParser dagaptekiParser = new DagaptekiParser();
-//        List<MedicineOutputModel> tableItems = dagaptekiParser.request("нос");
+//        DagAptekiParser dagaptekiParser = new DagAptekiParser();
+//        List<MedicineOutputModel> tableItems = dagaptekiParser.request("нос", 1L);
 //        tableItems.forEach(System.out::println);
 //    }
 
@@ -123,20 +124,20 @@ public class DagAptekiParser implements WebParser {
     }
 
     private static LocalDateTime parseUpdateTime(String str) {
-        LocalDateTime updateTime;
+        LocalDate updateTime;
         try {
-            updateTime = LocalDateTime.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
+            updateTime = LocalDate.parse(String.format(RIGHT_TIME, str), TIME_FORMATTER);
 
             // Не знаем год, поэтому сконкатенированная дата может быть в будущем
-            if (updateTime.isAfter(LocalDateTime.now())) {
-                updateTime = LocalDateTime.MIN;
+            if (updateTime.isAfter(LocalDate.now())) {
+                updateTime = LocalDate.MIN;
             }
 
         } catch (DateTimeParseException e) {
             log.error("Can not parse date at dagapteki: {}", e.getMessage());
-            updateTime = LocalDateTime.now();
+            updateTime = LocalDate.now();
         }
-        return updateTime;
+        return updateTime.atStartOfDay();
     }
 
 }

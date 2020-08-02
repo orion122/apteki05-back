@@ -1,9 +1,18 @@
 package ru.apteki05.model;
 
-import lombok.Data;
-
-import javax.persistence.*;
 import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import lombok.Data;
 
 @Data
 @Entity
@@ -28,6 +37,15 @@ public class Pharmacy {
 
     @Column
     private String address;
+
+    @Column
+    private String phone;
+
+    @Column
+    private String timetable;
+
+    @Column
+    private String url;
 
     @Column(nullable = false)
     private String token;
